@@ -5,6 +5,8 @@ import org.ohchase.core.IDaemonListener;
 import org.ohchase.core.configuration.DaemonConfig;
 import org.ohchase.core.NetworkType;
 import org.ohchase.core.configuration.P2PConfig;
+import org.ohchase.core.configuration.RestrictedRpcConfig;
+import org.ohchase.core.configuration.RpcConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,13 +23,25 @@ public class Main {
 
         P2PConfig p2PConfig = P2PConfig.builder()
                 .p2pIp("0.0.0.0")
-                .p2pPort(63303)
+                .p2pPort(38080)
+                .build();
+
+        RestrictedRpcConfig restrictedRpcConfig = RestrictedRpcConfig.builder()
+                .restrictedIp("127.0.0.1")
+                .restrictedPort(38081)
+                .build();
+
+        RpcConfig rpcConfig = RpcConfig.builder()
+                .unrestrictedIp("127.0.0.1")
+                .unrestrictedPort(38082)
                 .build();
 
         DaemonConfig daemonConfig = DaemonConfig.builder()
                 .networkType(NetworkType.STAGE_NET)
                 .dataDirectory(dataDirectory)
                 .p2PConfig(p2PConfig)
+                .restrictedRpcConfig(restrictedRpcConfig)
+                .rpcConfig(rpcConfig)
                 .build();
 
         IDaemonListener listener = new IDaemonListener() {

@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represents a running Daemon process.
+ * Manages the lifecycle and output of the daemon.
+ */
 @AllArgsConstructor
 public class DaemonProcess {
 
@@ -43,6 +47,14 @@ public class DaemonProcess {
     @Getter
     private final Thread listenerThread;
 
+    /**
+     * Starts the daemon process with the given configuration and listener.
+     * @param monerodBinary File for the monerod binary.
+     * @param daemonListener Listener for daemon events.
+     * @param daemonConfig Configuration for the daemon.
+     * @return DaemonProcess on successful start.
+     * @throws IOException if the process fails to start.
+     */
     public static DaemonProcess start(File monerodBinary, IDaemonListener daemonListener, DaemonConfig daemonConfig) throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         List<String> command = buildCommand(monerodBinary, daemonConfig);
@@ -79,7 +91,8 @@ public class DaemonProcess {
             }
         }
 
-        // continue printing output in separate, non-blocking thread
+        // continue printing output in separate, non-blocking thread, and notify of events.
+        //
         Thread listenerThread = createListenerThread(daemonListener, process);
 
         if (!success) {
@@ -136,6 +149,7 @@ public class DaemonProcess {
                 String stdoutLine;
                 BufferedReader stdoutBuffer = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 while ((stdoutLine = stdoutBuffer.readLine()) != null) {
+
                     if (stdoutLine.contains("Synced")) {
                         Matcher matcher = SYNC_PROGRESS_PATTERN.matcher(stdoutLine);
                         if (matcher.find()) {
@@ -153,6 +167,7 @@ public class DaemonProcess {
                             daemonListener.onNewTopBlockCandidate(currentHeight, candidateHeight);
                         }
                     }
+
                 }
             } catch (IOException e) {
                 // e.printStackTrace(); // exception expected on close
@@ -161,5 +176,4 @@ public class DaemonProcess {
         listenerThread.start();
         return listenerThread;
     }
-
 }
