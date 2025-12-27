@@ -1,4 +1,4 @@
-package org.ohchase.core.configuration;
+package org.ohchase.monerod.configuration;
 
 import lombok.Builder;
 import lombok.Getter;

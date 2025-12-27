@@ -1,13 +1,14 @@
-package org.ohchase.core;
+package org.ohchase.monerod;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.ohchase.core.configuration.DaemonConfig;
+import lombok.NonNull;
+import org.ohchase.monerod.configuration.DaemonConfig;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,7 +34,7 @@ public class DaemonProcess {
     private static final Pattern SYNC_PROGRESS_PATTERN = Pattern.compile("Synced (\\d+)/(\\d+) \\((\\d+)%, (\\d+) left\\)");
 
     @Getter
-    private final File monerodBinary;
+    private final Path monerodBinary;
 
     @Getter
     private final DaemonConfig daemonConfig;
@@ -49,13 +50,13 @@ public class DaemonProcess {
 
     /**
      * Starts the daemon process with the given configuration and listener.
-     * @param monerodBinary File for the monerod binary.
+     * @param monerodBinary Path for the monerod binary.
      * @param daemonListener Listener for daemon events.
      * @param daemonConfig Configuration for the daemon.
      * @return DaemonProcess on successful start.
      * @throws IOException if the process fails to start.
      */
-    public static DaemonProcess start(File monerodBinary, IDaemonListener daemonListener, DaemonConfig daemonConfig) throws IOException {
+    public static @NonNull DaemonProcess start(Path monerodBinary, IDaemonListener daemonListener, DaemonConfig daemonConfig) throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         List<String> command = buildCommand(monerodBinary, daemonConfig);
 
@@ -69,7 +70,6 @@ public class DaemonProcess {
         StringBuilder sb = new StringBuilder();
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         boolean success = false;
-
         while ((initializationLine = in.readLine()) != null) {
             sb.append(initializationLine).append("\n");
 
@@ -90,22 +90,20 @@ public class DaemonProcess {
                 break;
             }
         }
-
-        // continue printing output in separate, non-blocking thread, and notify of events.
-        //
-        Thread listenerThread = createListenerThread(daemonListener, process);
-
         if (!success) {
             process.destroy();
             throw new IOException("Failed to start monerod process. Output:\n" + sb);
         }
 
+        // continue printing output in separate, non-blocking thread, and notify of events.
+        //
+        Thread listenerThread = createListenerThread(daemonListener, in);
         return new DaemonProcess(monerodBinary, daemonConfig, daemonListener, process, listenerThread);
     }
 
-    private static List<String> buildCommand(File monerodBinary, DaemonConfig daemonConfig) {
+    private static List<String> buildCommand(Path monerodBinary, DaemonConfig daemonConfig) {
         List<String> command = new ArrayList<>();
-        command.add(monerodBinary.getAbsolutePath());
+        command.add(monerodBinary.toAbsolutePath().toString());
 
         switch (daemonConfig.getNetworkType()) {
             case MAIN_NET -> {
@@ -143,13 +141,11 @@ public class DaemonProcess {
         return command;
     }
 
-    private static Thread createListenerThread(IDaemonListener daemonListener, Process process) {
-        Thread listenerThread = new Thread(() -> {
+    private static Thread createListenerThread(IDaemonListener daemonListener, BufferedReader stdoutBuffer) {
+        Thread stdoutThread = new Thread(() -> {
             try {
                 String stdoutLine;
-                BufferedReader stdoutBuffer = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 while ((stdoutLine = stdoutBuffer.readLine()) != null) {
-
                     if (stdoutLine.contains("Synced")) {
                         Matcher matcher = SYNC_PROGRESS_PATTERN.matcher(stdoutLine);
                         if (matcher.find()) {
@@ -173,7 +169,7 @@ public class DaemonProcess {
                 // e.printStackTrace(); // exception expected on close
             }
         });
-        listenerThread.start();
-        return listenerThread;
+        stdoutThread.start();
+        return stdoutThread;
     }
 }

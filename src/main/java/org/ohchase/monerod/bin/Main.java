@@ -1,24 +1,23 @@
-package org.ohchase;
+package org.ohchase.monerod.bin;
 
-import org.ohchase.core.DaemonProcess;
-import org.ohchase.core.IDaemonListener;
-import org.ohchase.core.configuration.DaemonConfig;
-import org.ohchase.core.NetworkType;
-import org.ohchase.core.configuration.P2PConfig;
-import org.ohchase.core.configuration.RestrictedRpcConfig;
-import org.ohchase.core.configuration.RpcConfig;
+import org.ohchase.monerod.DaemonProcess;
+import org.ohchase.monerod.IDaemonListener;
+import org.ohchase.monerod.NetworkType;
+import org.ohchase.monerod.configuration.DaemonConfig;
+import org.ohchase.monerod.configuration.P2PConfig;
+import org.ohchase.monerod.configuration.RestrictedRpcConfig;
+import org.ohchase.monerod.configuration.RpcConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        File monerodBinary = new File(args[0]);
+        Path monerodBinary = Path.of(args[0]);
         Path dataDirectory = Path.of(args[1]);
 
-        System.out.println("Monerod Binary: " + monerodBinary.getAbsolutePath());
+        System.out.println("Monerod Binary: " + monerodBinary.toAbsolutePath());
         System.out.println("Data Directory: " + dataDirectory.toAbsolutePath());
 
         P2PConfig p2PConfig = P2PConfig.builder()
@@ -76,7 +75,7 @@ public class Main {
         System.out.println("  Network Type: " + daemonConfig.getNetworkType());
         System.out.println("  Data Directory: " + daemonConfig.getDataDirectory().toAbsolutePath());
 
-        DaemonProcess daemonProcess = DaemonProcess.start(monerodBinary, listener, daemonConfig);
+        DaemonProcess.start(monerodBinary, listener, daemonConfig);
         while (true) {
             Thread.sleep(Duration.ofMinutes(1).toMillis());
         }

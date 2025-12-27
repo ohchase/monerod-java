@@ -1,4 +1,4 @@
-package org.ohchase.core;
+package org.ohchase.monerod;
 
 /**
  * Listener interface for Daemon events.

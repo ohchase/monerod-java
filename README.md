@@ -1,4 +1,4 @@
-# monerod
+# monerod-java
 
 Minimal Java (Maven) project for the monerod core used in this repo.
 
@@ -23,13 +23,13 @@ This produces `target/monerod-0.1-SNAPSHOT.jar`.
 Run the main class included in this project:
 
 ```bash
-java -cp target/monerod-0.1-SNAPSHOT.jar org.ohchase.Main
+java -cp target/monerod-0.1-SNAPSHOT.jar org.ohchase.monerod.bin.Main
 ```
 
 Or use the Maven Exec plugin:
 
 ```bash
-mvn -Dexec.mainClass="org.ohchase.Main" exec:java
+mvn -Dexec.mainClass="org.ohchase.monerod.bin.Main" exec:java
 ```
 
 ## Notes
