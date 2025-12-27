@@ -56,7 +56,7 @@ public class DaemonProcess {
      * @return DaemonProcess on successful start.
      * @throws IOException if the process fails to start.
      */
-    public static @NonNull DaemonProcess start(Path monerodBinary, IDaemonListener daemonListener, DaemonConfig daemonConfig) throws IOException {
+    public static DaemonProcess start(Path monerodBinary, IDaemonListener daemonListener, DaemonConfig daemonConfig) throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         List<String> command = buildCommand(monerodBinary, daemonConfig);
 
