@@ -26,6 +26,26 @@ Run the main class included in this project:
 java -cp target/monerod-0.1-SNAPSHOT.jar org.ohchase.monerod.bin.Main
 ```
 
+example
+```bash
+java -cp target/monerod-0.1-SNAPSHOT.jar org.ohchase.monerod.bin.Main /home/chase/Downloads/monero-linux-x86_64/monerod /home/chase/Downloads
+
+
+Monerod Binary: /home/chase/Downloads/monero-linux-x86_64/monerod
+Data Directory: /home/chase/Downloads
+Daemon Settings:
+  Network Type: STAGE_NET
+  Data Directory: /home/chase/Downloads
+P2P is ready.
+RPC is ready.
+Daemon is started.
+New top block candidate: 2021414 (current: 377720)
+Sync progress: 377740 / 2021414
+Sync progress: 377760 / 2021414
+Sync progress: 377780 / 2021414
+Sync progress: 377800 / 2021414
+```
+
 Or use the Maven Exec plugin:
 
 ```bash
