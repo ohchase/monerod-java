@@ -3,7 +3,6 @@ package org.ohchase.monerod.configuration;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import org.ohchase.monerod.NetworkType;
 
 import java.nio.file.Path;
 

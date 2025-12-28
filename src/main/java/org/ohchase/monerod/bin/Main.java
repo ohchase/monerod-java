@@ -2,7 +2,7 @@ package org.ohchase.monerod.bin;
 
 import org.ohchase.monerod.DaemonProcess;
 import org.ohchase.monerod.IDaemonListener;
-import org.ohchase.monerod.NetworkType;
+import org.ohchase.monerod.configuration.NetworkType;
 import org.ohchase.monerod.configuration.DaemonConfig;
 import org.ohchase.monerod.configuration.P2PConfig;
 import org.ohchase.monerod.configuration.RestrictedRpcConfig;
@@ -93,7 +93,8 @@ public class Main {
             System.out.println("  Uptime: " + daemonProcess.getUptime().toSeconds() + " seconds");
             Thread.sleep(Duration.ofSeconds(10).toMillis());
 
-            daemonProcess.stop();
+            // For demonstration purposes, we will not stop the daemon automatically.
+            // daemonProcess.stop();
         }
 
         System.out.println("Daemon process has exited.");

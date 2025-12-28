@@ -1,4 +1,4 @@
-package org.ohchase.monerod;
+package org.ohchase.monerod.configuration;
 
 /**
  * Enumeration of different network types.
