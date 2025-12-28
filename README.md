@@ -22,10 +22,6 @@ This produces `target/monerod-0.1-SNAPSHOT.jar`.
 
 Run the main class included in this project:
 
-```bash
-java -cp target/monerod-0.1-SNAPSHOT.jar org.ohchase.monerod.bin.Main
-```
-
 example
 ```bash
 java -cp target/monerod-0.1-SNAPSHOT.jar org.ohchase.monerod.bin.Main /home/chase/Downloads/monero-linux-x86_64/monerod /home/chase/Downloads

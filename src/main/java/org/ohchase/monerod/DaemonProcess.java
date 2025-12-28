@@ -169,14 +169,14 @@ public class DaemonProcess {
         command.add("--no-zmq");
 
         // Pruning configuration
-        if (daemonConfig.getGetSyncPrunedBlocks() != null
-                && daemonConfig.getGetSyncPrunedBlocks()) {
+        if (daemonConfig.getSyncPrunedBlocks() != null
+                && daemonConfig.getSyncPrunedBlocks()) {
             command.add("--sync-pruned-blocks");
         }
 
         // Accept pruned blocks from peers
-        if (daemonConfig.getGetPrunedBlockchain() != null
-                && daemonConfig.getGetPrunedBlockchain()) {
+        if (daemonConfig.getPrunedBlockchain() != null
+                && daemonConfig.getPrunedBlockchain()) {
             command.add("--prune-blockchain");
         }
 
@@ -207,6 +207,35 @@ public class DaemonProcess {
 
             command.add("--rpc-restricted-bind-port");
             command.add(String.valueOf(daemonConfig.getRestrictedRpcConfig().getRestrictedPort()));
+        }
+
+        // Transaction proxy configuration
+        // Send transactions over Tor or I2P
+        if (daemonConfig.getTxProxy() != null) {
+            StringBuilder txProxySb = new StringBuilder();
+
+            switch (daemonConfig.getTxProxy().getType()) {
+                case TOR -> txProxySb.append("tor");
+                case I2P -> txProxySb.append("i2p");
+            }
+
+            txProxySb.append(",");
+            txProxySb.append(daemonConfig.getTxProxy().getAddress());
+            txProxySb.append(":");
+            txProxySb.append(daemonConfig.getTxProxy().getPort());
+
+            if (daemonConfig.getTxProxy().getMaxConnections() != null) {
+                txProxySb.append(",");
+                txProxySb.append(daemonConfig.getTxProxy().getMaxConnections());
+            }
+
+            if (daemonConfig.getTxProxy().isDisableNoise()) {
+                txProxySb.append(",disable_noise");
+            }
+
+            String txProxyCommand = txProxySb.toString();
+            command.add("--tx-proxy");
+            command.add(txProxyCommand);
         }
 
 

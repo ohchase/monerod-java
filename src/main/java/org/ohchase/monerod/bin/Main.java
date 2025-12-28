@@ -2,11 +2,7 @@ package org.ohchase.monerod.bin;
 
 import org.ohchase.monerod.DaemonProcess;
 import org.ohchase.monerod.IDaemonListener;
-import org.ohchase.monerod.configuration.NetworkType;
-import org.ohchase.monerod.configuration.DaemonConfig;
-import org.ohchase.monerod.configuration.P2PConfig;
-import org.ohchase.monerod.configuration.RestrictedRpcConfig;
-import org.ohchase.monerod.configuration.RpcConfig;
+import org.ohchase.monerod.configuration.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,14 +31,23 @@ public class Main {
                 .restrictedPort(8080)
                 .build();
 
+        TxProxy txProxy = TxProxy.builder()
+                .type(TxProxyType.TOR)
+                .address("127.0.0.1")
+                .port(9050)
+                .maxConnections(16)
+                .disableNoise(true)
+                .build();
+
         DaemonConfig daemonConfig = DaemonConfig.builder()
                 .networkType(NetworkType.STAGE_NET)
                 .dataDirectory(dataDirectory)
                 .p2PConfig(p2PConfig)
                 .restrictedRpcConfig(restrictedRpcConfig)
                 .rpcConfig(rpcConfig)
-                .getSyncPrunedBlocks(true)
-                .getPrunedBlockchain(true)
+                .txProxy(txProxy)
+                .syncPrunedBlocks(true)
+                .prunedBlockchain(true)
                 .build();
 
         IDaemonListener listener = new IDaemonListener() {
@@ -89,8 +94,7 @@ public class Main {
 
         DaemonProcess daemonProcess = DaemonProcess.start(monerodBinary, listener, daemonConfig);
         while (daemonProcess.isAlive()) {
-            System.out.println("Daemon is running...");
-            System.out.println("  Uptime: " + daemonProcess.getUptime().toSeconds() + " seconds");
+            System.out.println("Daemon is running... Uptime: " + daemonProcess.getUptime().toSeconds() + " seconds");
             Thread.sleep(Duration.ofSeconds(10).toMillis());
 
             // For demonstration purposes, we will not stop the daemon automatically.

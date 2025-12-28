@@ -50,15 +50,21 @@ public class DaemonConfig {
     private final RpcConfig rpcConfig;
 
     /**
+     * Configuration for the transaction proxy.
+     */
+    @Getter
+    private final TxProxy txProxy;
+
+    /**
      * Whether to run the daemon in pruned mode.
      */
     @Getter
-    private final Boolean getSyncPrunedBlocks;
+    private final Boolean syncPrunedBlocks;
 
     /**
      * Whether to accept pruned blocks from peers.
      */
     @Getter
-    private final Boolean getPrunedBlockchain;
+    private final Boolean prunedBlockchain;
 
 }
