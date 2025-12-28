@@ -2,15 +2,16 @@ package org.ohchase.monerod;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 import org.ohchase.monerod.configuration.DaemonConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,11 +43,60 @@ public class DaemonProcess {
     @Getter
     private final IDaemonListener daemonListener;
 
-    @Getter
     private final Process process;
 
-    @Getter
     private final Thread listenerThread;
+
+    /**
+     * Stops the daemon process and waits for the listener thread to finish.
+     */
+    public int stop() {
+        process.destroy();
+
+        try {
+            listenerThread.join();
+        } catch (InterruptedException e) {
+            System.out.println("Warning. Interrupted while waiting for listener thread to finish.");
+            Thread.currentThread().interrupt();
+        }
+
+        try {
+            int exitCode = process.waitFor();
+            this.daemonListener.onDaemonExited(exitCode);
+            return exitCode;
+        } catch (InterruptedException e) {
+            System.out.println("Interrupted while waiting for process to terminate.");
+            Thread.currentThread().interrupt();
+            return -1;
+        }
+    }
+
+    /**
+     * Gets the uptime of the daemon process.
+     * @return Duration representing the uptime.
+     * @throws NoSuchElementException if the start instant is not available.
+     */
+    public Duration getUptime() throws NoSuchElementException {
+        long uptimeMillis = System.currentTimeMillis() - process.info().startInstant().orElseThrow().toEpochMilli();
+        return Duration.ofMillis(uptimeMillis);
+    }
+
+    /**
+     * Checks if the daemon process is still running.
+     * @return true if running, false if exited.
+     */
+    public boolean isAlive() {
+        return process.isAlive();
+    }
+
+    /**
+     * Gets the exit code of the daemon process.
+     * @return exit code.
+     * @throws IllegalThreadStateException if the process is still running.
+     */
+    public int getExitCode() throws IllegalThreadStateException {
+        return process.exitValue();
+    }
 
     /**
      * Starts the daemon process with the given configuration and listener.
@@ -96,7 +146,6 @@ public class DaemonProcess {
         }
 
         // continue printing output in separate, non-blocking thread, and notify of events.
-        //
         Thread listenerThread = createListenerThread(daemonListener, in);
         return new DaemonProcess(monerodBinary, daemonConfig, daemonListener, process, listenerThread);
     }
@@ -119,6 +168,19 @@ public class DaemonProcess {
         // Opinionated configuration
         command.add("--no-zmq");
 
+        // Pruning configuration
+        if (daemonConfig.getGetSyncPrunedBlocks() != null
+                && daemonConfig.getGetSyncPrunedBlocks()) {
+            command.add("--sync-pruned-blocks");
+        }
+
+        // Accept pruned blocks from peers
+        if (daemonConfig.getGetPrunedBlockchain() != null
+                && daemonConfig.getGetPrunedBlockchain()) {
+            command.add("--prune-blockchain");
+        }
+
+        // P2P Configuration
         if (daemonConfig.getP2PConfig() != null) {
             command.add("--no-igd");
 
@@ -129,12 +191,22 @@ public class DaemonProcess {
             command.add(String.valueOf(daemonConfig.getP2PConfig().getP2pPort()));
         }
 
+        // Unrestricted RPC Configuration
         if (daemonConfig.getRpcConfig() != null) {
             command.add("--rpc-bind-ip");
             command.add(daemonConfig.getRpcConfig().getUnrestrictedIp());
 
             command.add("--rpc-bind-port");
             command.add(String.valueOf(daemonConfig.getRpcConfig().getUnrestrictedPort()));
+        }
+
+        // Restricted RPC Configuration
+        if (daemonConfig.getRestrictedRpcConfig() != null) {
+            command.add("--rpc-restricted-bind-ip");
+            command.add(daemonConfig.getRestrictedRpcConfig().getRestrictedIp());
+
+            command.add("--rpc-restricted-bind-port");
+            command.add(String.valueOf(daemonConfig.getRestrictedRpcConfig().getRestrictedPort()));
         }
 
 
@@ -163,10 +235,10 @@ public class DaemonProcess {
                             daemonListener.onNewTopBlockCandidate(currentHeight, candidateHeight);
                         }
                     }
-
                 }
+                daemonListener.onDaemonKilled();
             } catch (IOException e) {
-                // e.printStackTrace(); // exception expected on close
+                // Stream closed, exit thread
             }
         });
         stdoutThread.start();

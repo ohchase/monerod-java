@@ -1,5 +1,7 @@
 package org.ohchase.monerod;
 
+import java.io.IOException;
+
 /**
  * Listener interface for Daemon events.
  * Implement this interface to receive notifications about the daemon's state and progress.
@@ -23,6 +25,17 @@ public interface IDaemonListener {
      * This is a good point to start monitoring synchronization progress.
      */
     void onDaemonStarted();
+
+    /**
+     * Called when the daemon is killed by an external mechanism.
+     */
+    void onDaemonKilled();
+
+    /**
+     * Called once the daemon process has exited.
+     * @param exitCode the exit code of the daemon process
+     */
+    void onDaemonExited(int exitCode);
 
     /**
      * Called when a new top block candidate is found.

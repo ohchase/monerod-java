@@ -36,6 +36,10 @@ public class DaemonConfig {
 
     /**
      * Configuration for the restricted RPC interface.
+     * <b>USE WITH CAUTION AND INTENTION.</b>
+     * <b>If this is exposed to untrusted networks, it may pose security risks.</b>
+     * <b>If this is exposed to untrusted networks, it will allow external entities to begin mining.</b>
+     * <b>If this is exposed to untrusted networks, it will allow external entities to drain loaded wallets.</b>
      */
     @Getter
     private final RestrictedRpcConfig restrictedRpcConfig;
@@ -45,5 +49,17 @@ public class DaemonConfig {
      */
     @Getter
     private final RpcConfig rpcConfig;
+
+    /**
+     * Whether to run the daemon in pruned mode.
+     */
+    @Getter
+    private final Boolean getSyncPrunedBlocks;
+
+    /**
+     * Whether to accept pruned blocks from peers.
+     */
+    @Getter
+    private final Boolean getPrunedBlockchain;
 
 }
