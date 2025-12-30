@@ -17,18 +17,23 @@ public class Main {
         System.out.println("Data Directory: " + dataDirectory.toAbsolutePath());
 
         P2PConfig p2PConfig = P2PConfig.builder()
-                .p2pIp("0.0.0.0")
-                .p2pPort(38080)
+                .address("127.0.0.1")
+                .port(38080)
+                .proxy(ProxyConfig.builder()
+                        .address("127.0.0.1")
+                        .port(9050)
+                        .build()
+                )
                 .build();
 
         RpcConfig rpcConfig = RpcConfig.builder()
-                .unrestrictedIp("127.0.0.1")
-                .unrestrictedPort(38081)
+                .address("127.0.0.1")
+                .port(38081)
                 .build();
 
         RestrictedRpcConfig restrictedRpcConfig = RestrictedRpcConfig.builder()
-                .restrictedIp("127.0.0.1")
-                .restrictedPort(8080)
+                .address("127.0.0.1")
+                .port(8080)
                 .build();
 
         TxProxy txProxy = TxProxy.builder()
@@ -42,7 +47,7 @@ public class Main {
         DaemonConfig daemonConfig = DaemonConfig.builder()
                 .networkType(NetworkType.STAGE_NET)
                 .dataDirectory(dataDirectory)
-                .p2PConfig(p2PConfig)
+                .p2pConfig(p2PConfig)
                 .restrictedRpcConfig(restrictedRpcConfig)
                 .rpcConfig(rpcConfig)
                 .txProxy(txProxy)

@@ -17,12 +17,12 @@ public class RpcConfig {
      */
     @Getter
     @NonNull
-    private final String unrestrictedIp;
+    private final String address;
 
     /**
      * Port number for the unrestricted RPC interface.
      */
     @Getter
     @NonNull
-    private final Integer unrestrictedPort;
+    private final Integer port;
 }

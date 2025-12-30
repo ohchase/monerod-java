@@ -17,12 +17,12 @@ public class RestrictedRpcConfig {
      */
     @Getter
     @NonNull
-    private final String restrictedIp;
+    private final String address;
 
     /**
      * Port number for the restricted RPC interface.
      */
     @Getter
     @NonNull
-    private final Integer restrictedPort;
+    private final Integer port;
 }

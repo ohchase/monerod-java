@@ -16,13 +16,25 @@ public class P2PConfig {
      */
     @Getter
     @NonNull
-    private final String p2pIp;
+    private final String address;
 
     /**
      * Port number for the P2P interface.
      */
     @Getter
     @NonNull
-    private final Integer p2pPort;
+    private final Integer port;
+
+    /**
+     * Configuration for the proxy used in P2P communication.
+     */
+    @Getter
+    private final ProxyConfig proxy;
+
+    /**
+     * Configuration for Hidden Service Inbound Proxy.
+     */
+    @Getter
+    private final InboundProxy inboundProxy;
 
 }

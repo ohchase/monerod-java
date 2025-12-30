@@ -31,7 +31,7 @@ public class DaemonConfig {
      * Configuration for the P2P interface.
      */
     @Getter
-    private final P2PConfig p2PConfig;
+    private final P2PConfig p2pConfig;
 
     /**
      * Configuration for the restricted RPC interface.

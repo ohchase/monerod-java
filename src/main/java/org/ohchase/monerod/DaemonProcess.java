@@ -181,32 +181,48 @@ public class DaemonProcess {
         }
 
         // P2P Configuration
-        if (daemonConfig.getP2PConfig() != null) {
-            command.add("--no-igd");
+        if (daemonConfig.getP2pConfig() != null) {
+
+            // Proxy configuration for P2P
+            if (daemonConfig.getP2pConfig().getProxy() != null) {
+                StringBuilder p2pProxySb = new StringBuilder();
+
+                command.add("--no-igd");
+                command.add("--hide-my-port");
+
+                p2pProxySb.append(daemonConfig.getP2pConfig().getProxy().getAddress());
+                p2pProxySb.append(":");
+                p2pProxySb.append(daemonConfig.getP2pConfig().getProxy().getPort());
+
+                String p2pProxyCommand = p2pProxySb.toString();
+                command.add("--proxy");
+                command.add(p2pProxyCommand);
+            }
+
 
             command.add("--p2p-bind-ip");
-            command.add(daemonConfig.getP2PConfig().getP2pIp());
+            command.add(daemonConfig.getP2pConfig().getAddress());
 
             command.add("--p2p-bind-port");
-            command.add(String.valueOf(daemonConfig.getP2PConfig().getP2pPort()));
+            command.add(String.valueOf(daemonConfig.getP2pConfig().getPort()));
         }
 
         // Unrestricted RPC Configuration
         if (daemonConfig.getRpcConfig() != null) {
             command.add("--rpc-bind-ip");
-            command.add(daemonConfig.getRpcConfig().getUnrestrictedIp());
+            command.add(daemonConfig.getRpcConfig().getAddress());
 
             command.add("--rpc-bind-port");
-            command.add(String.valueOf(daemonConfig.getRpcConfig().getUnrestrictedPort()));
+            command.add(String.valueOf(daemonConfig.getRpcConfig().getPort()));
         }
 
         // Restricted RPC Configuration
         if (daemonConfig.getRestrictedRpcConfig() != null) {
             command.add("--rpc-restricted-bind-ip");
-            command.add(daemonConfig.getRestrictedRpcConfig().getRestrictedIp());
+            command.add(daemonConfig.getRestrictedRpcConfig().getAddress());
 
             command.add("--rpc-restricted-bind-port");
-            command.add(String.valueOf(daemonConfig.getRestrictedRpcConfig().getRestrictedPort()));
+            command.add(String.valueOf(daemonConfig.getRestrictedRpcConfig().getPort()));
         }
 
         // Transaction proxy configuration
@@ -238,7 +254,7 @@ public class DaemonProcess {
             command.add(txProxyCommand);
         }
 
-
+        System.out.println(command);
         return command;
     }
 
